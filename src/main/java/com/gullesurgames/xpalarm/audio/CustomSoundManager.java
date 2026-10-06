@@ -1,26 +1,16 @@
 package com.gullesurgames.xpalarm.audio;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.LineEvent;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.client.RuneLite;
+import net.runelite.client.audio.AudioPlayer;
 
 /**
  * Manages loading and asynchronous playback of custom .wav audio files located in .runelite/xpalarm/sounds/
@@ -31,11 +21,17 @@ public class CustomSoundManager
 {
 	private static final File SOUNDS_DIR = new File(new File(RuneLite.RUNELITE_DIR, "xpalarm"), "sounds");
 	private final ExecutorService soundExecutor = Executors.newSingleThreadExecutor();
-	private final Map<String, byte[]> audioCache = new ConcurrentHashMap<>();
+	private final AudioPlayer audioPlayer;
 
-	@Inject
 	public CustomSoundManager()
 	{
+		this(new AudioPlayer());
+	}
+
+	@Inject
+	public CustomSoundManager(AudioPlayer audioPlayer)
+	{
+		this.audioPlayer = audioPlayer;
 		initDirectory();
 	}
 
@@ -103,34 +99,7 @@ public class CustomSoundManager
 					return;
 				}
 
-				try (InputStream fis = new BufferedInputStream(new FileInputStream(soundFile));
-					 AudioInputStream rawStream = AudioSystem.getAudioInputStream(fis))
-				{
-					AudioFormat baseFormat = rawStream.getFormat();
-					AudioFormat targetFormat = new AudioFormat(
-						AudioFormat.Encoding.PCM_SIGNED,
-						baseFormat.getSampleRate(),
-						16,
-						baseFormat.getChannels(),
-						baseFormat.getChannels() * 2,
-						baseFormat.getSampleRate(),
-						false
-					);
-
-					AudioInputStream decodedStream = AudioSystem.getAudioInputStream(targetFormat, rawStream);
-					DataLine.Info info = new DataLine.Info(Clip.class, targetFormat);
-					Clip clip = (Clip) AudioSystem.getLine(info);
-
-					clip.addLineListener(event -> {
-						if (event.getType() == LineEvent.Type.STOP)
-						{
-							clip.close();
-						}
-					});
-
-					clip.open(decodedStream);
-					clip.start();
-				}
+				audioPlayer.play(soundFile, 0.0f);
 			}
 			catch (Exception e)
 			{
@@ -145,6 +114,5 @@ public class CustomSoundManager
 	public void shutDown()
 	{
 		soundExecutor.shutdown();
-		audioCache.clear();
 	}
 }
