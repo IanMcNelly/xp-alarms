@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group = 'net.runelite.client.plugins'
+group = 'com.gullesurgames.xpalarm'
 version = '1.0.0'
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -47,6 +47,6 @@ tasks.register('run', JavaExec) {
     group = 'Execution'
     description = 'Launches RuneLite with the XP Alarm plugin loaded for local testing'
     classpath = sourceSets.test.runtimeClasspath
-    mainClass = 'net.runelite.client.plugins.xpalarm.XpAlarmPluginTest'
+    mainClass = 'com.gullesurgames.xpalarm.XpAlarmPluginTest'
     enableAssertions = true
 }
