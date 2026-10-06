@@ -83,6 +83,10 @@ public class XpAlarmPlugin extends Plugin
 	@Inject
 	private ChatMessageManager chatMessageManager;
 
+	@Inject
+	@Getter
+	private AlarmSerialization alarmSerialization;
+
 	private XpAlarmPanel panel;
 	private NavigationButton navButton;
 
@@ -265,7 +269,7 @@ public class XpAlarmPlugin extends Plugin
 	public void loadAlarms()
 	{
 		String json = config.alarmsListJson();
-		List<XpAlarmTarget> loaded = AlarmSerialization.fromJson(json);
+		List<XpAlarmTarget> loaded = alarmSerialization.fromJson(json);
 		alarms.clear();
 		alarms.addAll(loaded);
 
@@ -281,8 +285,18 @@ public class XpAlarmPlugin extends Plugin
 
 	public void saveAlarms()
 	{
-		String json = AlarmSerialization.toJson(alarms);
+		String json = alarmSerialization.toJson(alarms);
 		configManager.setConfiguration(XpAlarmConfig.CONFIG_GROUP, XpAlarmConfig.ALARMS_LIST_KEY, json);
+	}
+
+	public String exportAlarmsToBase64()
+	{
+		return alarmSerialization.exportToBase64(alarms);
+	}
+
+	public List<XpAlarmTarget> importAlarmsFromBase64(String base64) throws IllegalArgumentException
+	{
+		return alarmSerialization.importFromBase64(base64);
 	}
 
 	public void addAlarm(XpAlarmTarget alarm)

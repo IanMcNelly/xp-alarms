@@ -33,7 +33,6 @@ import javax.swing.border.EmptyBorder;
 import lombok.extern.slf4j.Slf4j;
 import com.gullesurgames.xpalarm.XpAlarmPlugin;
 import com.gullesurgames.xpalarm.model.XpAlarmTarget;
-import com.gullesurgames.xpalarm.util.AlarmSerialization;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
@@ -348,7 +347,7 @@ public class XpAlarmPanel extends PluginPanel
 
 		try
 		{
-			String b64 = AlarmSerialization.exportToBase64(alarms);
+			String b64 = plugin.exportAlarmsToBase64();
 			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 			clipboard.setContents(new StringSelection(b64), null);
 			JOptionPane.showMessageDialog(this, "Exported " + alarms.size() + " alarm(s) to clipboard as Base64 string!", "Export Successful", JOptionPane.INFORMATION_MESSAGE);
@@ -399,7 +398,7 @@ public class XpAlarmPanel extends PluginPanel
 
 		try
 		{
-			List<XpAlarmTarget> imported = AlarmSerialization.importFromBase64(payload);
+			List<XpAlarmTarget> imported = plugin.importAlarmsFromBase64(payload);
 			if (imported.isEmpty())
 			{
 				JOptionPane.showMessageDialog(this, "No valid alarms found in provided payload.", "Import Alarms", JOptionPane.WARNING_MESSAGE);

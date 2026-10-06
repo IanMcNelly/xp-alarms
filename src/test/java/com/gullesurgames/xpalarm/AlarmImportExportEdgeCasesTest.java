@@ -14,30 +14,39 @@ import com.gullesurgames.xpalarm.model.SoundType;
 import com.gullesurgames.xpalarm.model.XpAlarmTarget;
 import com.gullesurgames.xpalarm.util.AlarmSerialization;
 import org.junit.Assert;
+import com.google.gson.Gson;
+import org.junit.Before;
 import org.junit.Test;
 
 public class AlarmImportExportEdgeCasesTest
 {
+	private AlarmSerialization alarmSerialization;
+
+	@Before
+	public void setUp()
+	{
+		alarmSerialization = new AlarmSerialization(new Gson());
+	}
 	@Test
 	public void testImportFromBase64NullAndWhitespace()
 	{
 		// Null input returns empty list
-		List<XpAlarmTarget> fromNull = AlarmSerialization.importFromBase64(null);
+		List<XpAlarmTarget> fromNull = alarmSerialization.importFromBase64(null);
 		Assert.assertNotNull(fromNull);
 		Assert.assertTrue(fromNull.isEmpty());
 
 		// Empty string returns empty list
-		List<XpAlarmTarget> fromEmpty = AlarmSerialization.importFromBase64("");
+		List<XpAlarmTarget> fromEmpty = alarmSerialization.importFromBase64("");
 		Assert.assertNotNull(fromEmpty);
 		Assert.assertTrue(fromEmpty.isEmpty());
 
 		// Whitespace only returns empty list
-		List<XpAlarmTarget> fromSpaces = AlarmSerialization.importFromBase64("    ");
+		List<XpAlarmTarget> fromSpaces = alarmSerialization.importFromBase64("    ");
 		Assert.assertNotNull(fromSpaces);
 		Assert.assertTrue(fromSpaces.isEmpty());
 
 		// Tab and newline whitespace returns empty list
-		List<XpAlarmTarget> fromWhitespace = AlarmSerialization.importFromBase64("\t\r\n ");
+		List<XpAlarmTarget> fromWhitespace = alarmSerialization.importFromBase64("\t\r\n ");
 		Assert.assertNotNull(fromWhitespace);
 		Assert.assertTrue(fromWhitespace.isEmpty());
 	}
@@ -45,19 +54,19 @@ public class AlarmImportExportEdgeCasesTest
 	@Test(expected = IllegalArgumentException.class)
 	public void testImportFromBase64CorruptedPayloadThrows()
 	{
-		AlarmSerialization.importFromBase64("Not Valid Base64!@#$*&");
+		alarmSerialization.importFromBase64("Not Valid Base64!@#$*&");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testImportFromBase64InvalidPaddingThrows()
 	{
-		AlarmSerialization.importFromBase64("YWJjZA===");
+		alarmSerialization.importFromBase64("YWJjZA===");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testImportFromBase64SpecialCharactersThrows()
 	{
-		AlarmSerialization.importFromBase64("???***###!!!");
+		alarmSerialization.importFromBase64("???***###!!!");
 	}
 
 	@Test
@@ -67,7 +76,7 @@ public class AlarmImportExportEdgeCasesTest
 		String malformedJson = "{broken json syntax: [not-closed";
 		String b64 = Base64.getEncoder().encodeToString(malformedJson.getBytes(StandardCharsets.UTF_8));
 
-		List<XpAlarmTarget> result = AlarmSerialization.importFromBase64(b64);
+		List<XpAlarmTarget> result = alarmSerialization.importFromBase64(b64);
 		Assert.assertNotNull(result);
 		Assert.assertTrue(result.isEmpty());
 
@@ -75,7 +84,7 @@ public class AlarmImportExportEdgeCasesTest
 		String scalarJson = "\"just a plain string\"";
 		String b64Scalar = Base64.getEncoder().encodeToString(scalarJson.getBytes(StandardCharsets.UTF_8));
 
-		List<XpAlarmTarget> scalarResult = AlarmSerialization.importFromBase64(b64Scalar);
+		List<XpAlarmTarget> scalarResult = alarmSerialization.importFromBase64(b64Scalar);
 		Assert.assertNotNull(scalarResult);
 		Assert.assertTrue(scalarResult.isEmpty());
 
@@ -83,7 +92,7 @@ public class AlarmImportExportEdgeCasesTest
 		String objJson = "{\"field\": \"value\"}";
 		String b64Obj = Base64.getEncoder().encodeToString(objJson.getBytes(StandardCharsets.UTF_8));
 
-		List<XpAlarmTarget> objResult = AlarmSerialization.importFromBase64(b64Obj);
+		List<XpAlarmTarget> objResult = alarmSerialization.importFromBase64(b64Obj);
 		Assert.assertNotNull(objResult);
 		Assert.assertTrue(objResult.isEmpty());
 	}
@@ -92,16 +101,16 @@ public class AlarmImportExportEdgeCasesTest
 	public void testExportAndImportEmptyAndNullList()
 	{
 		// Exporting null yields valid Base64 of empty array
-		String b64Null = AlarmSerialization.exportToBase64(null);
+		String b64Null = alarmSerialization.exportToBase64(null);
 		Assert.assertNotNull(b64Null);
-		List<XpAlarmTarget> fromNullExport = AlarmSerialization.importFromBase64(b64Null);
+		List<XpAlarmTarget> fromNullExport = alarmSerialization.importFromBase64(b64Null);
 		Assert.assertNotNull(fromNullExport);
 		Assert.assertTrue(fromNullExport.isEmpty());
 
 		// Exporting empty list yields valid Base64 of empty array
-		String b64Empty = AlarmSerialization.exportToBase64(Collections.emptyList());
+		String b64Empty = alarmSerialization.exportToBase64(Collections.emptyList());
 		Assert.assertNotNull(b64Empty);
-		List<XpAlarmTarget> fromEmptyExport = AlarmSerialization.importFromBase64(b64Empty);
+		List<XpAlarmTarget> fromEmptyExport = alarmSerialization.importFromBase64(b64Empty);
 		Assert.assertNotNull(fromEmptyExport);
 		Assert.assertTrue(fromEmptyExport.isEmpty());
 	}
@@ -202,12 +211,12 @@ public class AlarmImportExportEdgeCasesTest
 			.build());
 
 		// Export
-		String exportedBase64 = AlarmSerialization.exportToBase64(originalAlarms);
+		String exportedBase64 = alarmSerialization.exportToBase64(originalAlarms);
 		Assert.assertNotNull(exportedBase64);
 		Assert.assertFalse(exportedBase64.isEmpty());
 
 		// Import
-		List<XpAlarmTarget> importedAlarms = AlarmSerialization.importFromBase64(exportedBase64);
+		List<XpAlarmTarget> importedAlarms = alarmSerialization.importFromBase64(exportedBase64);
 		Assert.assertNotNull(importedAlarms);
 		Assert.assertEquals(originalAlarms.size(), importedAlarms.size());
 

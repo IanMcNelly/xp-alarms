@@ -1,5 +1,6 @@
 package com.gullesurgames.xpalarm;
 
+import com.google.gson.Gson;
 import java.awt.Color;
 import java.util.Collections;
 import java.util.List;
@@ -10,10 +11,19 @@ import com.gullesurgames.xpalarm.model.SoundType;
 import com.gullesurgames.xpalarm.model.XpAlarmTarget;
 import com.gullesurgames.xpalarm.util.AlarmSerialization;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class AlarmSerializationTest
 {
+	private AlarmSerialization alarmSerialization;
+
+	@Before
+	public void setUp()
+	{
+		alarmSerialization = new AlarmSerialization(new Gson());
+	}
+
 	@Test
 	public void testSerializationRoundTrip()
 	{
@@ -37,10 +47,10 @@ public class AlarmSerializationTest
 
 		List<XpAlarmTarget> list = Collections.singletonList(target);
 
-		String json = AlarmSerialization.toJson(list);
+		String json = alarmSerialization.toJson(list);
 		Assert.assertNotNull(json);
 
-		List<XpAlarmTarget> deserialized = AlarmSerialization.fromJson(json);
+		List<XpAlarmTarget> deserialized = alarmSerialization.fromJson(json);
 		Assert.assertEquals(1, deserialized.size());
 
 		XpAlarmTarget restored = deserialized.get(0);
@@ -72,10 +82,10 @@ public class AlarmSerializationTest
 			.triggered(true)
 			.build();
 
-		String b64 = AlarmSerialization.exportToBase64(Collections.singletonList(target));
+		String b64 = alarmSerialization.exportToBase64(Collections.singletonList(target));
 		Assert.assertNotNull(b64);
 
-		List<XpAlarmTarget> imported = AlarmSerialization.importFromBase64(b64);
+		List<XpAlarmTarget> imported = alarmSerialization.importFromBase64(b64);
 		Assert.assertEquals(1, imported.size());
 		Assert.assertEquals(Skill.WOODCUTTING, imported.get(0).getSkill());
 		Assert.assertEquals(13034431, imported.get(0).getThresholdValue());
