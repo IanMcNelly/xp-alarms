@@ -1,5 +1,7 @@
 # xpAlarm - RuneLite Plugin
 
+[![Active Installs](http://img.shields.io/endpoint?url=https://api.runelite.net/pluginhub/shields/installs/plugin/xp-alarms)](https://runelite.net/plugin-hub/snakeman2058) [![Plugin Rank](http://img.shields.io/endpoint?url=https://api.runelite.net/pluginhub/shields/rank/plugin/xp-alarms)](https://runelite.net/plugin-hub)
+
 [![License](https://img.shields.io/badge/License-BSD_2--Clause-blue.svg)](LICENSE)
 [![Java](https://img.shields.io/badge/Java-11%2B-orange.svg)](https://www.oracle.com/java/)
 [![RuneLite](https://img.shields.io/badge/RuneLite-Plugin_Hub-brightgreen.svg)](https://runelite.net/plugin-hub)
