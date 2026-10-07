@@ -37,16 +37,20 @@ import com.gullesurgames.xpalarm.model.SoundType;
 import com.gullesurgames.xpalarm.model.XpAlarmTarget;
 import com.gullesurgames.xpalarm.ui.XpAlarmPanel;
 import com.gullesurgames.xpalarm.util.AlarmSerialization;
+import java.io.IOException;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.ui.overlay.OverlayManager;
+import net.runelite.client.util.Filepath;
 
 @Slf4j
 @Singleton
 @PluginDescriptor(
 	name = "XP Alarm",
 	description = "Customizable XP and level thresholds with screen flashes, sounds, and notifications",
-	tags = {"xp", "experience", "level", "alarm", "flash", "sound", "notify"}
+	tags = {"xp", "experience", "level", "alarm", "flash", "sound", "notify"},
+	internalName = "xpalarm",
+	legacyDataDirectory = "xpalarm"
 )
 public class XpAlarmPlugin extends Plugin
 {
@@ -109,7 +113,15 @@ public class XpAlarmPlugin extends Plugin
 		loadAlarms();
 
 		// Ensure audio directories are initialized
-		customSoundManager.initDirectory();
+		try
+		{
+			Filepath soundsDir = getPluginDirectory().join("sounds");
+			customSoundManager.initDirectory(soundsDir);
+		}
+		catch (IOException e)
+		{
+			log.error("Failed to initialize custom sound directory", e);
+		}
 
 		// Register overlay
 		overlayManager.add(overlay);

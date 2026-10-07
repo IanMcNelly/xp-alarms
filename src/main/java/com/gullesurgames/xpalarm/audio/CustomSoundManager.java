@@ -1,27 +1,31 @@
 package com.gullesurgames.xpalarm.audio;
 
-import java.io.File;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.client.RuneLite;
 import net.runelite.client.audio.AudioPlayer;
+import net.runelite.client.util.Filepath;
 
 /**
- * Manages loading and asynchronous playback of custom .wav audio files located in .runelite/xpalarm/sounds/
+ * Manages loading and asynchronous playback of custom .wav audio files located in the plugin's sounds directory.
  */
 @Slf4j
 @Singleton
 public class CustomSoundManager
 {
-	private static final File SOUNDS_DIR = new File(new File(RuneLite.RUNELITE_DIR, "xpalarm"), "sounds");
 	private final ExecutorService soundExecutor = Executors.newSingleThreadExecutor();
 	private final AudioPlayer audioPlayer;
+
+	@Getter
+	private Filepath soundsDirectory;
 
 	public CustomSoundManager()
 	{
@@ -32,26 +36,26 @@ public class CustomSoundManager
 	public CustomSoundManager(AudioPlayer audioPlayer)
 	{
 		this.audioPlayer = audioPlayer;
-		initDirectory();
 	}
 
 	/**
 	 * Ensures the custom sounds directory structure exists on disk.
 	 */
-	public void initDirectory()
+	public void initDirectory(Filepath dir)
 	{
-		if (!SOUNDS_DIR.exists())
+		this.soundsDirectory = dir;
+		if (soundsDirectory != null && !soundsDirectory.exists())
 		{
-			if (SOUNDS_DIR.mkdirs())
+			try
 			{
-				log.info("Created custom XP Alarm sound directory at: {}", SOUNDS_DIR.getAbsolutePath());
+				soundsDirectory.createDirectories();
+				log.info("Created custom XP Alarm sound directory at: {}", soundsDirectory);
+			}
+			catch (IOException e)
+			{
+				log.error("Failed to create custom sound directory: {}", soundsDirectory, e);
 			}
 		}
-	}
-
-	public File getSoundsDirectory()
-	{
-		return SOUNDS_DIR;
 	}
 
 	/**
@@ -59,24 +63,25 @@ public class CustomSoundManager
 	 */
 	public List<String> getAvailableSoundFiles()
 	{
-		if (!SOUNDS_DIR.exists() || !SOUNDS_DIR.isDirectory())
+		if (soundsDirectory == null || !soundsDirectory.exists() || !soundsDirectory.isDirectory())
 		{
 			return Collections.emptyList();
 		}
 
-		File[] files = SOUNDS_DIR.listFiles((dir, name) -> name.toLowerCase().endsWith(".wav"));
-		if (files == null || files.length == 0)
+		try (Stream<Filepath> stream = soundsDirectory.walk(1))
 		{
+			return stream
+				.filter(fp -> !fp.equals(soundsDirectory) && fp.isFile())
+				.map(Filepath::getFileName)
+				.filter(name -> name.toLowerCase().endsWith(".wav"))
+				.sorted()
+				.collect(Collectors.toList());
+		}
+		catch (IOException e)
+		{
+			log.error("Failed to list custom sound files from {}", soundsDirectory, e);
 			return Collections.emptyList();
 		}
-
-		List<String> fileNames = new ArrayList<>();
-		for (File file : files)
-		{
-			fileNames.add(file.getName());
-		}
-		Collections.sort(fileNames);
-		return fileNames;
 	}
 
 	/**
@@ -84,7 +89,7 @@ public class CustomSoundManager
 	 */
 	public void playCustomSound(String fileName)
 	{
-		if (fileName == null || fileName.trim().isEmpty())
+		if (fileName == null || fileName.trim().isEmpty() || soundsDirectory == null)
 		{
 			return;
 		}
@@ -92,14 +97,18 @@ public class CustomSoundManager
 		soundExecutor.submit(() -> {
 			try
 			{
-				File soundFile = new File(SOUNDS_DIR, fileName);
+				Filepath soundFile = soundsDirectory.join(fileName);
 				if (!soundFile.exists() || !soundFile.isFile())
 				{
-					log.warn("Custom sound file not found: {}", soundFile.getAbsolutePath());
+					log.warn("Custom sound file not found: {}", soundFile);
 					return;
 				}
 
 				audioPlayer.play(soundFile, 0.0f);
+			}
+			catch (IllegalArgumentException e)
+			{
+				log.warn("Invalid sound filename: {}", fileName, e);
 			}
 			catch (Exception e)
 			{
