@@ -49,7 +49,7 @@ import net.runelite.client.util.Filepath;
 	name = "XP Alarm",
 	description = "Customizable XP and level thresholds with screen flashes, sounds, and notifications",
 	tags = {"xp", "experience", "level", "alarm", "flash", "sound", "notify"},
-	internalName = "xpalarm",
+	internalName = "xp-alarms",
 	legacyDataDirectory = "xpalarm"
 )
 public class XpAlarmPlugin extends Plugin

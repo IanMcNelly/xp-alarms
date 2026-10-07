@@ -37,7 +37,7 @@ public interface XpAlarmConfig extends Config
 	@ConfigItem(
 		keyName = "enableCustomSounds",
 		name = "Enable Custom Sounds",
-		description = "Enables loading and playing external .wav files from the plugin sounds directory (.runelite/plugin-data/xpalarm/sounds/)",
+		description = "Enables loading and playing external .wav files from the plugin sounds directory (.runelite/plugin-data/xp-alarms/sounds/)",
 		position = 2
 	)
 	default boolean enableCustomSounds()

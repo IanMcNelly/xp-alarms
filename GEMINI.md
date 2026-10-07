@@ -45,13 +45,13 @@ This document contains critical constraints, API rules, and lessons learned for 
 ## 4. File I/O & Plugin Directory Storage
 - **Rule**: All file I/O must be performed using `net.runelite.client.util.Filepath`, **not** direct Java APIs (`java.io.File`, `java.io.FileInputStream`, `java.nio.file.Path`, etc.).
 - **Requirements**:
-  1. Set `internalName` (and optionally `legacyDataDirectory` for backward-compatible migration from `.runelite/<name>`) in `@PluginDescriptor`:
+  1. Set `internalName` in `@PluginDescriptor` to **match exactly** the plugin name in the Plugin Hub repository (`plugins/<plugin-name>`) (and optionally `legacyDataDirectory` for backward-compatible migration from `.runelite/<name>`):
      ```java
      @PluginDescriptor(
-         name = "Plugin Name",
+         name = "XP Alarm",
          description = "...",
-         internalName = "pluginname",
-         legacyDataDirectory = "pluginname"
+         internalName = "xp-alarms", // MUST match the filename in plugin-hub/plugins/<name>
+         legacyDataDirectory = "xpalarm"
      )
      ```
   2. Access the plugin's data directory inside `Plugin` subclasses via:
