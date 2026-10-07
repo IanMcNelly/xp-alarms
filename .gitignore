@@ -6,3 +6,5 @@ build/
 .classpath
 *.class
 gradle.properties
+GEMINI.md
+.agents/

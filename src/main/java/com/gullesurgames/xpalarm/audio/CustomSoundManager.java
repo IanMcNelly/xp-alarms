@@ -122,6 +122,6 @@ public class CustomSoundManager
 	 */
 	public void shutDown()
 	{
-		soundExecutor.shutdown();
+		soundExecutor.shutdownNow();
 	}
 }

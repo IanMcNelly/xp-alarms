@@ -49,9 +49,10 @@ Search for **XP Alarm** in the RuneLite Plugin Hub and click **Install**.
 ### Custom Audio Setup
 To use custom sound effects:
 1. Ensure the custom sounds directory exists (the plugin automatically generates it on startup):
-   - **Windows**: `C:\Users\<YourUsername>\.runelite\xpalarm\sounds\`
-   - **macOS**: `~/.runelite/xpalarm/sounds/`
-   - **Linux**: `~/.runelite/xpalarm/sounds/` or `~/.config/runelite/xpalarm/sounds/`
+   - **Windows**: `C:\Users\<YourUsername>\.runelite\plugin-data\xp-alarms\sounds\`
+   - **macOS**: `~/.runelite/plugin-data/xp-alarms/sounds/`
+   - **Linux**: `~/.runelite/plugin-data/xp-alarms/sounds/`
+   *(Note: Any files previously in legacy `.runelite/xpalarm/` are migrated automatically upon launch).*
 2. Drop standard `.wav` audio files (16-bit PCM recommended) into that folder.
 3. Open the plugin's side panel editor, select **Custom WAV File**, pick your sound from the dropdown, and click **Test Audio** to verify playback.
 
@@ -62,7 +63,7 @@ To use custom sound effects:
 | Option | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `Flash Duration (Frames)` | Integer (5–60) | `15` | Number of client render frames the screen flash overlay stays active. |
-| `Enable Custom Sounds` | Boolean | `true` | Allows external `.wav` files to play from the `.runelite/xpalarm/sounds/` folder. |
+| `Enable Custom Sounds` | Boolean | `true` | Allows external `.wav` files to play from the `.runelite/plugin-data/xp-alarms/sounds/` folder. |
 
 ---
 
